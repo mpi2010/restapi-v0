@@ -20,6 +20,9 @@ class Product extends Model
         'image',
         'seller_id',
     ];
+    protected $hidden = [
+        'pivot'
+    ];
 
     public function is_Available()
     {
