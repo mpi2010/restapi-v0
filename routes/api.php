@@ -28,7 +28,7 @@ Route::resource('sellers.transactions','Seller\SellerTransactionController',['on
 Route::resource('sellers.categories','Seller\SellerCategoryController',['only' => ['index']]);
 Route::resource('sellers.transactions','Seller\SellerTransactionController',['only' => ['index']]);
 Route::resource('sellers.buyers','Seller\SellerBuyerController',['only' => ['index']]);
-Route::resource('sellers.products','Seller\SellerProductController',['only' => ['index']]);
+Route::resource('sellers.products','Seller\SellerProductController',['except' => ['create','edit']]);
 /**
  * Product
  */

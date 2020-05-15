@@ -4,7 +4,11 @@ namespace App\Http\Controllers\Seller;
 
 use App\Http\Controllers\ApiController;
 use App\Seller;
+use App\User;
+use App\Product;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class SellerProductController extends ApiController
 {
@@ -24,11 +28,29 @@ class SellerProductController extends ApiController
      * Store a newly created resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function store(Request $request)
+    public function store(Request $request,User $seller)
     {
-        //
+        $rules = [
+            'name' => 'required',
+            'description' => 'required',
+            'quantity' => 'required|integer|min:1',
+            'image' => 'required|image',
+        ];
+
+        $this->validate($request, $rules);
+
+        $data = $request->all();
+
+        $data['status'] = Product::AVAILABLE_PRODUCT;
+        $data['image'] = $request->image->store('');
+        $data['seller_id'] = $seller->id;
+
+        $product = Product::create($data);
+
+        return $this->showOne($product);
+
     }
 
     /**
@@ -36,21 +58,67 @@ class SellerProductController extends ApiController
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  \App\Seller  $seller
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function update(Request $request, Seller $seller)
+    public function update(Request $request, Seller $seller, Product $product)
     {
-        //
+        $rules = [
+            'quantity' => 'integer|min:1',
+            'status' => 'in:'.Product::AVAILABLE_PRODUCT.','. Product::UNAVAILABLE_PRODUCT,
+            'image' => 'image'
+        ];
+        $this->validate($request, $rules);
+        $this->checkSeller( $seller, $product);
+
+        $product->fill($request->only([
+            'name',
+            'description',
+            'quantity'
+        ]));
+
+        if($request->has('status')) {
+            $product->status = $request->status;
+            if($product->isAvailable()){
+                return $this->errorResponse('An active product must have at least one category',409);
+            }
+        }
+
+        if($request->hasFile('image')){
+            Storage::delete($product->image);
+
+            $product->image = $request->image->store('');
+        }
+
+        if($product->isClean()) {
+            return $this->errorResponse('You need specify a different value to update',422);
+
+        }
+
+        $product->save();
+
+        return $this->showOne($product);
+
     }
 
     /**
      * Remove the specified resource from storage.
      *
      * @param  \App\Seller  $seller
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function destroy(Seller $seller)
+    public function destroy(Seller $seller, Product $product)
     {
-        //
+        $this->checkSeller($seller, $product);
+
+        Storage::delete($product->image);
+
+        $product->delete();
+        return $this->showOne($product);
+    }
+    protected function checkSeller(Seller $seller, Product $product)
+    {
+        if($seller->id != $product->seller_id ) {
+            throw new HttpException(422, 'The specified seller is not actual seller of the product ');
+        }
     }
 }
