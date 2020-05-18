@@ -2,7 +2,6 @@
 
 namespace App\Providers;
 
-use App\Http\Controllers\Product\ProductBuyerController;
 use App\Product;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Schema;

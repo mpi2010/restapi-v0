@@ -23,10 +23,9 @@ class Product extends Model
     protected $hidden = [
         'pivot'
     ];
-
-    public function is_Available()
+    public function isAvailable()
     {
-        return $this->status = Product::AVAILABLE_PRODUCT;
+        return $this->status == Product::AVAILABLE_PRODUCT;
     }
     public function categories()
     {
