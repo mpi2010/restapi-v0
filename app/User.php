@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\Transformers\UserTransformer;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -18,6 +19,7 @@ class User extends Authenticatable
     const VERIFIED_USER = '1';
     const UNVERIFIED_USER = '0';
 
+    public $transformer = UserTransformer::class;
     protected $table = 'users';
     protected $dates = ['deleted_at'];
     /**
@@ -42,7 +44,7 @@ class User extends Authenticatable
     protected $hidden = [
         'password',
         'remember_token',
-        'verification_token',
+ //       'verification_token',
     ];
 
     /**
@@ -65,13 +67,13 @@ class User extends Authenticatable
     {
         $this->attributes['email'] = strtolower($email);
     }
-    public function isVerified()
+    public function isVerified ()
     {
-        return $this->verified = User::VERIFIED_USER;
+        return $this->verified == User::VERIFIED_USER;
     }
-    public function isAdmin()
+    public function isAdmin ()
     {
-        return $this->admin = User::ADMIN_USER;
+        return $this->admin == User::ADMIN_USER;
     }
     public static function generateVerificationCode()
     {

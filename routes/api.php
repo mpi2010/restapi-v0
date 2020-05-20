@@ -56,5 +56,5 @@ Route::resource('transactions.sellers','Transaction\TransactionSellerController'
  * User
  */
 Route::resource('users','User\UserController',['except' => ['create','edit']]);
-
-
+Route::name('verify')->get('users/verify/{token}','User\UserController@verify');
+Route::name ('resend')->get('users/{user}/resend', 'User\UserController@resend');
