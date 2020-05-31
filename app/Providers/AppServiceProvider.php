@@ -2,13 +2,13 @@
 
 namespace App\Providers;
 
+use App\User;
+use App\Product;
 use App\Mail\UserCreated;
 use App\Mail\UserMailChanged;
-use App\Product;
-use App\User;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
